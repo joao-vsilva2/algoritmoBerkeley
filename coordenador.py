@@ -2,29 +2,19 @@ import argparse
 import json
 import socket
 import time
-import random
+#import random
 
-def calcular_media_berkeley(tempos_coletados, tempo_coordenador, tolerancia=10.0):
-    """
-    Calcula a média de Berkeley, descartando valores discrepantes (outliers)
-    se ultrapassarem a tolerância definida.
-    """
-    todos_tempos = [(0, tempo_coordenador)] # (id_participante, tempo) -> id 0 é o coordenador
+def calcular_media_berkeley(tempos_coletados, tempo_coordenador):
+    todos_tempos = [(0, tempo_coordenador)]
     for p_id, t in tempos_coletados.items():
         todos_tempos.append((p_id, t))
     
     print(f"\n[COORDENADOR] Tempos brutos coletados: {todos_tempos}")
     
-    # Filtragem de discrepantes em relação ao coordenador (opcional, mas recomendado no algoritmo)
-    tempos_validos = []
-    for p_id, t in todos_tempos:
-        diff = abs(t - tempo_coordenador)
-        if diff <= tolerancia:
-            tempos_validos.append((p_id, t))
-        else:
-            print(f"[COORDENADOR] Aviso: Participante {p_id} descartado por discrepância (diferença de {diff:.2f}s).")
+    # Considera TODOS os tempos válidos sem descartar ninguém
+    tempos_validos = todos_tempos
 
-    # Calcula a média dos relógios válidos
+    # Calcula a média de todos os relógios
     soma = sum(t for _, t in tempos_validos)
     media = soma / len(tempos_validos)
     
@@ -66,8 +56,11 @@ def main():
         conexoes.append(conn)
         enderecos.append(addr)
         print(f"[COORDENADOR] Participante conectado de {addr} (Total: {len(conexoes)}/{args.participantes})")
+        sincRelogio = input("\n[COORDENADOR] Pressione (1) para iniciar a sincronização\n Ou (0) para atualizar a lista de participantes: ")
+        if sincRelogio == "1":
+            break
 
-    input("\n[COORDENADOR] Pressione ENTER para iniciar a sincronização de relógios...")
+#    input("\n[COORDENADOR] Pressione ENTER para iniciar a sincronização de relógios...")
 
     # Simula o avanço do relógio local do coordenador no momento da consulta
     tempo_coordenador_consulta = time.time() + args.offset
